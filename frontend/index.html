@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Etiquetas ZPL</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #0056b3;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input[type="number"], input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .loading {
+            text-align: center;
+            margin-top: 20px;
+            font-style: italic;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Etiquetas ZPL para Pedidos</h1>
+
+        <div id="loadingMessage" class="loading">Cargando pedidos...</div>
+        <div id="errorMessage" class="message error" style="display: none;"></div>
+
+        <div id="appContent" style="display: none;">
+            <label for="pedidoSelect">Seleccionar Pedido:</label>
+            <select id="pedidoSelect">
+                <option value="">Cargando...</option>
+            </select>
+
+            <label for="numBultos">Cantidad de Bultos:</label>
+            <input type="number" id="numBultos" value="1" min="1">
+
+            <label for="tipoEnvioEtiqueta">Tipo de Envío (Etiqueta):</label>
+            <input type="text" id="tipoEnvioEtiqueta" value="Domicilio">
+
+            <label for="tipoDomicilio">Tipo de Domicilio:</label>
+            <select id="tipoDomicilio">
+                <option value="Domicilio">Domicilio</option>
+                <option value="Comercio">Comercio</option>
+            </select>
+
+            <button id="generateBtn">Generar y Descargar Etiquetas ZPL</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://192.168.1.218:8000/api'; // Asegúrate que esta IP y puerto sean correctos
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const pedidoSelect = document.getElementById('pedidoSelect');
+            const numBultosInput = document.getElementById('numBultos');
+            const tipoEnvioEtiquetaInput = document.getElementById('tipoEnvioEtiqueta');
+            const tipoDomicilioSelect = document.getElementById('tipoDomicilio');
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const appContent = document.getElementById('appContent');
+
+            let allPedidosData = []; // Para almacenar los datos completos de los pedidos
+
+            // Función para mostrar mensajes de error
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                loadingMessage.style.display = 'none';
+                appContent.style.display = 'none'; // Opcional: ocultar contenido si hay un error grave
+            }
+
+            // Función para ocultar mensajes de error
+            function hideError() {
+                errorMessage.style.display = 'none';
+            }
+
+            // Cargar pedidos al inicio
+            async function loadPedidos() {
+                hideError();
+                loadingMessage.style.display = 'block';
+                try {
+                    const response = await fetch(`${API_BASE_URL}/data?ids=80`);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    allPedidosData = data; // Guardar todos los datos
+
+                    pedidoSelect.innerHTML = '<option value="">-- Seleccione un Pedido --</option>';
+                    if (data.length > 0) {
+                        data.forEach(pedido => {
+                            const option = document.createElement('option');
+                            option.value = pedido.IDPedido;
+                            option.textContent = `Pedido #${pedido.IDPedido} - ${pedido.NombreCliente || 'N/A'}`; // Mostrar ID y NombreCliente
+                            pedidoSelect.appendChild(option);
+                        });
+                        appContent.style.display = 'block';
+                    } else {
+                        pedidoSelect.innerHTML = '<option value="">No hay pedidos disponibles</option>';
+                        showError("No se encontraron pedidos. Asegúrate de que GlobalBluepoint tenga datos o la conexión sea correcta.");
+                    }
+                } catch (error) {
+                    console.error('Error al cargar pedidos:', error);
+                    showError(`Error al cargar pedidos: ${error.message}. Verifica el servidor.`);
+                } finally {
+                    loadingMessage.style.display = 'none';
+                }
+            }
+
+            // Generar y descargar ZPL
+            generateBtn.addEventListener('click', async () => {
+                hideError();
+                const selectedPedidoId = pedidoSelect.value;
+                const numBultos = parseInt(numBultosInput.value, 10);
+                const tipoEnvioEtiqueta = tipoEnvioEtiquetaInput.value;
+                const tipoDomicilio = tipoDomicilioSelect.value;
+
+                if (!selectedPedidoId) {
+                    showError("Por favor, selecciona un pedido.");
+                    return;
+                }
+
+                if (isNaN(numBultos) || numBultos < 1) {
+                    showError("La cantidad de bultos debe ser un número positivo.");
+                    return;
+                }
+                
+                generateBtn.disabled = true;
+                generateBtn.textContent = "Generando...";
+
+                try {
+                    const params = new URLSearchParams({
+                        pedidoId: selectedPedidoId,
+                        numBultos: numBultos,
+                        tipoEnvioEtiqueta: tipoEnvioEtiqueta,
+                        tipoDomicilio: tipoDomicilio
+                    });
+
+                    const response = await fetch(`${API_BASE_URL}/generate_zpl?${params.toString()}`);
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text(); // Podría ser JSON o texto plano
+                        let errorMessageContent = `Error ${response.status} al generar ZPL.`;
+                        try {
+                            const errorJson = JSON.parse(errorText);
+                            errorMessageContent = errorJson.error || errorMessageContent;
+                        } catch {
+                            errorMessageContent += ` Detalles: ${errorText.substring(0, 200)}...`; // Mostrar parte del texto si no es JSON
+                        }
+                        throw new Error(errorMessageContent);
+                    }
+
+                    const zplContent = await response.text();
+                    
+                    // Crear un Blob con el contenido ZPL
+                    const blob = new Blob([zplContent], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+
+                    // Crear un enlace para descargar
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `etiquetas_pedido_${selectedPedidoId}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url); // Liberar la URL del objeto
+
+                    // Mostrar un mensaje de éxito temporal (opcional)
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'message success';
+                    successMessage.textContent = `Etiquetas ZPL generadas y descargadas para el pedido ${selectedPedidoId}.`;
+                    document.querySelector('.container').appendChild(successMessage);
+                    setTimeout(() => successMessage.remove(), 5000); // Eliminar el mensaje después de 5 segundos
+
+                } catch (error) {
+                    console.error('Error al generar ZPL:', error);
+                    showError(`Error al generar etiquetas: ${error.message}`);
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = "Generar y Descargar Etiquetas ZPL";
+                }
+            });
+
+            // Cargar pedidos al iniciar la página
+            loadPedidos();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+/* src/App.css */
+
+/* Variables CSS para temas */
+:root {
+  --light-bg-color: #f4f7f6;
+  --light-text-color: #333;
+  --light-card-bg: #ffffff;
+  --light-card-border: #e0e0e0;
+  --light-button-bg: #007bff;
+  --light-button-text: #fff;
+  --light-button-hover-bg: #0056b3;
+  --light-input-border: #ccc;
+  --light-header-bg: #e9ecef;
+  /* Nuevas variables para la sección de ítems - Tema Claro */
+  --light-item-section-bg: #f0f0f0; /* Un gris muy claro para la sección */
+  --light-item-bg: #f8f8f8; /* Un blanco casi puro para ítems individuales */
+  --light-item-border: #d0d0d0; /* Borde claro para ítems */
+
+
+  --dark-bg-color: #282c34;
+  --dark-text-color: #e0e0e0;
+  --dark-card-bg: #3c4048;
+  --dark-card-border: #555;
+  --dark-button-bg: #61dafb;
+  --dark-button-text: #282c34;
+  --dark-button-hover-bg: #21a1f1;
+  --dark-input-border: #777;
+  --dark-header-bg: #363a42;
+  /* Nuevas variables para la sección de ítems - Tema Oscuro */
+  --dark-item-section-bg: #2f333a; /* Un gris oscuro para la sección */
+  --dark-item-bg: #343840; /* Un gris más oscuro para ítems individuales */
+  --dark-item-border: #4a4e55; /* Borde oscuro para ítems */
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+
+/* Estilos generales de la aplicación */
+.App {
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  min-height: 100vh;
+  padding: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Temas */
+.App.light-theme {
+  background-color: var(--light-bg-color);
+  color: var(--light-text-color);
+  /* Aplicar variables de ítems para tema claro */
+  --item-section-bg: var(--light-item-section-bg);
+  --item-bg: var(--light-item-bg);
+  --item-border: var(--light-item-border);
+}
+
+.App.dark-theme {
+  background-color: var(--dark-bg-color);
+  color: var(--dark-text-color);
+  /* Aplicar variables de ítems para tema oscuro */
+  --item-section-bg: var(--dark-item-section-bg);
+  --item-bg: var(--dark-item-bg);
+  --item-border: var(--dark-item-border);
+}
+
+/* Encabezado */
+.logo-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.logo-img-large {
+  height: 140px;
+  width: auto;
+  object-fit: contain;
+  transition: filter 0.3s ease;
+}
+
+.app-title {
+  font-size: 1.8em;
+  font-weight: 600;
+  margin: 0;
+  color: inherit;
+}
+
+
+.App-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--header-bg);
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.header-left,
+.header-center,
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  flex: 0 0 auto;
+}
+
+.header-logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.header-center {
+  flex: 1;
+  justify-content: center;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.6em;
+  font-weight: 600;
+  color: inherit;
+}
+
+.header-right {
+  flex: 0 0 auto;
+}
+
+.refresh-button {
+  background: none;
+  border: none;
+  padding: 6px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: inherit;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.refresh-button:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Rotación cuando está cargando */
+.refresh-button.rotating svg {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.refresh-button svg {
+  width: 22px;
+  height: 22px;
+}	
+
+.App-header h1 {
+  margin: 0;
+  font-size: 2.5em;
+  color: inherit; /* Hereda del tema */
+}
+
+/* Contenedores de botones y filtros */
+.theme-toggle-container,
+.filter-container,
+.action-buttons-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Botones */
+button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  transition: all 0.25s ease;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.App.light-theme button {
+  background-color: var(--light-button-bg);
+  color: var(--light-button-text);
+}
+
+.App.light-theme button:hover {
+  background-color: var(--light-button-hover-bg);
+  transform: translateY(-2px);
+}
+
+.App.dark-theme button {
+  background-color: var(--dark-button-bg);
+  color: var(--dark-button-text);
+}
+
+.App.dark-theme button:hover {
+  background-color: var(--dark-button-hover-bg);
+  transform: translateY(-2px);
+}
+
+.icon-button {
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  padding: 10px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.icon-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: rotate(20deg) scale(1.1);
+}
+
+.theme-floating-button {
+  padding: 10px 16px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 1000;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.theme-floating-button:hover {
+  transform: rotate(15deg) scale(1.1);
+}
+
+.theme-floating-button svg {
+  width: 28px;
+  height: 28px;
+  transition: transform 0.3s ease;
+}
+
+.theme-floating-button:hover svg {
+  transform: scale(1.2);
+}
+
+
+/* Asegura buen contraste para ambos temas */
+.App.dark-theme .theme-floating-button {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.App.light-theme .theme-floating-button {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+
+
+/* Inputs */
+input[type="text"],
+input[type="number"],
+select {
+  padding: 8px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  font-size: 1em;
+  background-color: var(--card-bg); /* Hereda del tema */
+  color: var(--text-color); /* Hereda del tema */
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  border-color: var(--button-bg); /* Color de enfoque */
+  outline: none;
+}
+
+/* Mensaje de estado */
+.status-message {
+  padding: 10px 15px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 0, 0.2); /* Fondo amarillo claro */
+  color: #ffc107; /* Texto amarillo */
+  font-weight: bold;
+  margin-top: 10px;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.status-message p {
+  margin: 0;
+}
+
+/* Contenedor de tarjetas */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  justify-content: center;
+}
+
+/* Tarjetas de pedido */
+.order-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.order-id {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.client-info {
+  font-size: 0.9em;
+  color: var(--text-color);
+}
+
+.order-status {
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Colores de estado (ejemplos, ajustar según tus necesidades) */
+.status-gauss { background-color: #28a745; } /* Verde */
+.status-envío-a-domicilio-estándar { background-color: #007bff; } /* Azul */
+.status-motomensajería-en-caba { background-color: #ffc107; color: #333; } /* Amarillo */
+.status-envío-cordón-2 { background-color: #dc3545; } /* Rojo */
+
+.card-content p {
+  margin: 5px 0;
+  text-align: left;
+  font-size: 0.95em;
+}
+
+.card-content strong {
+  color: inherit;
+}
+
+/* Sección de ítems */
+.order-items-section {
+  background-color: var(--item-section-bg); /* Usar la nueva variable */
+  padding: 10px;
+  border-radius: 8px;
+  max-height: 200px; /* Limitar altura */
+  overflow-y: auto; /* Scroll si hay muchos ítems */
+  border: 1px dashed var(--item-border); /* Usar la nueva variable */
+}
+
+.order-items-section h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.1em;
+  color: inherit;
+}
+
+.order-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.order-item {
+  background-color: var(--item-bg); /* Usar la nueva variable */
+  padding: 8px 12px;
+  margin-bottom: 5px;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 0.9em;
+  border: 1px solid var(--item-border); /* Usar la nueva variable */
+}
+
+.order-item:last-child {
+  margin-bottom: 0;
+}
+
+.order-item p {
+  margin: 2px 0;
+}
+
+/* Acciones de la tarjeta */
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--card-border);
+  align-items: center;
+}
+
+.card-actions label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: inherit;
+}
+
+.card-actions input[type="text"],
+.card-actions input[type="number"],
+.card-actions select {
+  width: 100%;
+  max-width: 200px;
+  box-sizing: border-box;
+}
+
+.print-label-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.print-label-button:hover {
+  background-color: #218838;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .App-header {
+    padding: 15px;
+  }
+
+  .App-header h1 {
+    font-size: 2em;
+  }
+
+  .cards-container {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  .order-card {
+    padding: 15px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .order-id, .client-info, .order-status {
+    width: 100%;
+    text-align: left;
+  }
+
+  .order-status {
+    margin-top: 5px;
+  }
+}
+
+
+/* Status Bar */
+.status-bar {
+  width: 100%;
+  padding: 6px 12px;
+  font-size: 0.9em;
+  font-weight: 500;
+  text-align: center;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Tema claro */
+.App.light-theme .status-bar {
+  background-color: #e6f4ea; /* verde muy claro */
+  color: #276738;
+  border: 1px solid #c8e6c9;
+}
+
+/* Tema oscuro */
+.App.dark-theme .status-bar {
+  background-color: #2e3e2f;
+  color: #c0eac2;
+  border: 1px solid #3f5741;
+}
