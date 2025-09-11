@@ -369,10 +369,12 @@ class SoapClient:
                         logging.warning(f"orderID '{order_header['orderID']}' de GlobalBluepoint no es un número válido para TiendaNube. Saltando consulta TN. Error: {ve}")
                         tiendanube_order_id = None
 
-                tn_order_details = None
-                if tiendanube_order_id and tiendanube_client:
-                    tn_order_details = tiendanube_client.get_order_details(tiendanube_order_id)
+                use_tiendanube = EXPORT_CONFIGS[int_expgr_id].get('use_tiendanube', False)
 
+                tn_order_details = None
+                if use_tiendanube and tiendanube_order_id and tiendanube_client:
+                    tn_order_details = tiendanube_client.get_order_details(tiendanube_order_id)
+                    
                 if isinstance(tn_order_details, dict) and tn_order_details and 'shipping_address' in tn_order_details:
                     shipping_address = tn_order_details['shipping_address']
                     logging.info(f"Datos de envío de TiendaNube obtenidos para orden {tiendanube_order_id}.")
@@ -524,11 +526,12 @@ EXPORT_CONFIGS = {
             'localidad_tn', 'provincia_tn', 'pais_tn', 'nombre_destinatario_tn',
             'tiendanube_order_id', 'tiendanube_order_number'
         ],
-        'source_name': 'DatosPedidosGlobalBluepointID80'
+        'source_name': 'DatosPedidosGlobalBluepointID80',
+        'use_tiendanube': True   # ✅ solo la 80 usa TN
     },
-    104: {
+    83: {
         'ws_name': 'wsExportDataById',
-        'params': {'intExpgr_id': 104},
+        'params': {'intExpgr_id': 83},
         'column_mapping': {
             'IDCliente': 'IDCliente',
             'IDPedido': 'IDPedido',
@@ -552,7 +555,8 @@ EXPORT_CONFIGS = {
             'localidad_tn', 'provincia_tn', 'pais_tn', 'nombre_destinatario_tn',
             'tiendanube_order_id', 'tiendanube_order_number'
         ],
-        'source_name': 'DatosPedidosGlobalBluepointID104'
+        'source_name': 'DatosPedidosGlobalBluepointID83',
+        'use_tiendanube': False  # 🚫 la 83 ignora TN
     },
 }
 
